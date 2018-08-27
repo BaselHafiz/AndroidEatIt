@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background2"
+    tools:context="com.bmacode17.androideatit.activities.SignIn">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/background1"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="250dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_phone"
+            android:text="01227154949"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20dp"
+            android:inputType="phone"
+            app:met_baseColor="@color/colorPrimary"
+            app:met_floatingLabel="highlight"
+            app:met_maxCharacters="11"
+            app:met_primaryColor="@color/colorPrimary"
+            app:met_singleLineEllipsis="true"
+            android:hint="Phone Number"
+            android:textColorHint="@color/colorPrimary"/>
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_password"
+            android:text="012"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20dp"
+            android:inputType="textPassword"
+            app:met_baseColor="@color/colorPrimary"
+            app:met_floatingLabel="highlight"
+            app:met_maxCharacters="11"
+            app:met_primaryColor="@color/colorPrimary"
+            app:met_singleLineEllipsis="true"
+            android:hint="Password"
+            android:textColorHint="@color/colorPrimary"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.rey.material.widget.CheckBox
+                android:id="@+id/checkbox_rememberMe"
+                style="@style/Material.Drawable.CheckBox"
+                android:text="Remember Me"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorPrimary"
+                app:cbd_strokeColor="@color/colorPrimary"
+                app:cbd_tickColor="@android:color/white"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textView_forgetPassword"
+                android:text="@string/text_forgetPassword"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorPrimary"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <info.hoang8f.widget.FButton
+        android:id="@+id/button_signIn"
+        android:text="Sign In"
+        android:textColor="@android:color/white"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        app:shadowColor="@android:color/black"
+        app:shadowHeight="3dp"
+        app:shadowEnabled="true"
+        app:cornerRadius="4dp"
+        app:fButtonColor="@color/colorPrimary"
+        android:layout_marginTop="470dp"
+        android:layout_marginLeft="140dp"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

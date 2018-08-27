@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:layout_marginBottom="3dp"
+    app:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageView_foodImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/background2"
+            android:scaleType="centerCrop"/>
+
+       <LinearLayout
+           android:weightSum="10"
+           android:layout_alignParentBottom="true"
+           android:background="@color/overlayBackground"
+           android:orientation="horizontal"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content">
+
+           <TextView
+               android:id="@+id/textView_foodName"
+               android:text="Food Name"
+               android:textColor="@android:color/white"
+               android:layout_weight="8.5"
+               android:textSize="16dp"
+               android:gravity="center"
+               android:layout_width="0dp"
+               android:layout_height="wrap_content" />
+
+           <ImageView
+               android:id="@+id/imageView_favourite"
+               android:src="@drawable/ic_favorite_border_black_24dp"
+               android:tint="@android:color/white"
+               android:textColor="@android:color/white"
+               android:layout_weight="1.5"
+               android:gravity="center"
+               android:layout_width="0dp"
+               android:layout_height="wrap_content" />
+
+       </LinearLayout>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
