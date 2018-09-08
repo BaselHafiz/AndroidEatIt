@@ -30,8 +30,18 @@
                android:id="@+id/textView_foodName"
                android:text="Food Name"
                android:textColor="@android:color/white"
-               android:layout_weight="8.5"
+               android:layout_weight="7"
                android:textSize="16dp"
+               android:gravity="center"
+               android:layout_width="0dp"
+               android:layout_height="wrap_content" />
+
+           <ImageView
+               android:id="@+id/imageView_share"
+               android:src="@drawable/ic_share_black_24dp"
+               android:tint="@android:color/white"
+               android:textColor="@android:color/white"
+               android:layout_weight="1.5"
                android:gravity="center"
                android:layout_width="0dp"
                android:layout_height="wrap_content" />

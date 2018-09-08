@@ -1,10 +1,15 @@
 package com.bmacode17.androideatit.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -16,11 +21,15 @@ import com.bmacode17.androideatit.R;
 import com.bmacode17.androideatit.common.Common;
 import com.bmacode17.androideatit.databases.Database;
 import com.bmacode17.androideatit.models.User;
+import com.facebook.FacebookSdk;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import io.paperdb.Paper;
 
@@ -36,8 +45,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
+        This method is deprecated so simply you can delete this line of code in your class. because according to the latest Facebook we now don't need to initialize the SDK manually, it gets initialize by itself.
+         */
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
 
+        printKeyHash();
 
         button_signIn = (Button) findViewById(R.id.button_signIn);
         button_signUp = (Button) findViewById(R.id.button_signUp);
@@ -76,6 +90,24 @@ public class MainActivity extends AppCompatActivity {
         if(user != null && password !=null)
             if(!user.isEmpty() && !password.isEmpty())
                 login(user,password);
+    }
+
+    private void printKeyHash() {
+
+        try{
+
+            PackageInfo info = getPackageManager().getPackageInfo("com.bmacode17.androideatit",PackageManager.GET_SIGNATURES);
+            for(Signature signature:info.signatures){
+
+                MessageDigest messageDigest = MessageDigest.getInstance("SHA");
+                messageDigest.update(signature.toByteArray());
+                Log.d("KeyHash", Base64.encodeToString(messageDigest.digest(),Base64.DEFAULT));
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     private void login(final String phone, final String password) {
