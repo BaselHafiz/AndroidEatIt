@@ -15,11 +15,12 @@ public class Request {
     private List<Order> food;
     private String status;
     private String notes;
+    private String paymentState;
 
     public Request() {
     }
 
-    public Request(String phone, String name, String address, String total, List<Order> food , String notes) {
+    public Request(String phone, String name, String address, String total, List<Order> food , String notes , String paymentState) {
         this.phone = phone;
         this.name = name;
         this.address = address;
@@ -27,6 +28,15 @@ public class Request {
         this.food = food;
         this.status = "0"; // Default is 0 , 0: placed , 1: On my way , 2: Shipped
         this.notes = notes;
+        this.paymentState = paymentState;
+    }
+
+    public String getPaymentState() {
+        return paymentState;
+    }
+
+    public void setPaymentState(String paymentState) {
+        this.paymentState = paymentState;
     }
 
     public String getNotes() {

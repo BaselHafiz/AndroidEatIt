@@ -1,6 +1,8 @@
 package com.bmacode17.androideatit.activities;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import com.bmacode17.androideatit.R;
 import com.bmacode17.androideatit.adapters.CartAdapter;
 import com.bmacode17.androideatit.common.Common;
+import com.bmacode17.androideatit.common.Config;
 import com.bmacode17.androideatit.databases.Database;
 import com.bmacode17.androideatit.models.Food;
 import com.bmacode17.androideatit.models.MyNotification;
@@ -36,7 +39,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +62,7 @@ import retrofit2.Response;
 public class Cart extends AppCompatActivity {
 
     private static final String TAG = "Basel";
+    private static final int PAYPAL_REQUEST_CODE = 1;
     FirebaseDatabase database;
     DatabaseReference table_request;
     RecyclerView recyclerView_listCart;
@@ -60,13 +73,23 @@ public class Cart extends AppCompatActivity {
     List<Order> carts = new ArrayList<>();
     CartAdapter cartAdapter;
     AlertDialog addressDialog;
-
     APIService mService;
+
+    // Paypal payment
+    static PayPalConfiguration configuration = new PayPalConfiguration()
+            .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX) // we'll use sandbox for testing purposes , change it for real process
+            .clientId(Config.PAYPAL_CLIENT_ID);
+    String address , notes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+
+        // Init Paypal
+        Intent intent = new Intent(this, PayPalService.class);
+        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,configuration);
+        startService(intent);
 
         // Init service
         mService = Common.getFCMService();
@@ -118,25 +141,72 @@ public class Cart extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                Request request = new Request(
-                        Common.currentUser.getPhone(),
-                        Common.currentUser.getName(),
-                        editText_address.getText().toString(),
-                        textView_totalPrice.getText().toString(),
-                        carts,
-                        editText_notes.getText().toString());
-                // Submit to firebase
-                // currentTimeMillis is considered as a key
-                String orderNumber = String.valueOf(System.currentTimeMillis());
-                table_request.child(orderNumber).setValue(request);
-                // Delete carts
-                new Database(getBaseContext()).cleanCarts();
-                sendOrderNotification(orderNumber);
+                // Show PayPal for payment
+
+                address = editText_address.getText().toString();
+                notes = editText_notes.getText().toString();
+                String formatAmount = textView_totalPrice.getText().toString()
+                        .replace("$","")
+                        .replace(",","");
+                PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(formatAmount)
+                        ,"USD"
+                        ,"Eat It App Order"
+                        ,PayPalPayment.PAYMENT_INTENT_SALE);
+                Intent intent = new Intent(getApplicationContext(), PaymentActivity.class);
+                intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,configuration);
+                intent.putExtra(PaymentActivity.EXTRA_PAYMENT,payPalPayment);
+                startActivityForResult(intent,PAYPAL_REQUEST_CODE);
             }
         });
 
         addressDialog = myAlertDialog.create();
         addressDialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if(requestCode == PAYPAL_REQUEST_CODE){
+
+            if(resultCode == RESULT_OK){
+
+                PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+                if(confirmation != null){
+
+                    try {
+
+                        String  paymentDetails = confirmation.toJSONObject().toString(4);
+                        JSONObject jsonObject = new JSONObject(paymentDetails);
+
+                        Request request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                textView_totalPrice.getText().toString(),
+                                carts,
+                                notes,
+                                jsonObject.getJSONObject("response").getString("state")); // Payment State
+
+                        // Submit to firebase
+                        // currentTimeMillis is considered as a key
+                        String orderNumber = String.valueOf(System.currentTimeMillis());
+                        table_request.child(orderNumber).setValue(request);
+                        // Delete carts
+                        new Database(getBaseContext()).cleanCarts();
+                        sendOrderNotification(orderNumber);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            else if(resultCode == Activity.RESULT_CANCELED){
+                Toast.makeText(this, "Payment is canceled", Toast.LENGTH_SHORT).show();
+            }
+            else if(resultCode == PaymentActivity.RESULT_EXTRAS_INVALID){
+                Toast.makeText(this, "Payment is invalid", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void sendOrderNotification(final String orderNumber) {

@@ -263,7 +263,6 @@ public class FoodList extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        Toast.makeText(FoodList.this, "Hi", Toast.LENGTH_SHORT).show();
                         Picasso.with(getApplicationContext())
                                 .load(model.getImage())
                                 .into(target);
