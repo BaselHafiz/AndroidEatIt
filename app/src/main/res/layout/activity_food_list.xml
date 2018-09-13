@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    android:id="@+id/swipeRefreshLayout_foodList"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,21 +9,27 @@
     android:background="@drawable/background2"
     tools:context="com.bmacode17.androideatit.activities.FoodList">
 
-    <com.mancj.materialsearchbar.MaterialSearchBar
-        android:id="@+id/searchBar_foodList"
-        app:mt_speechMode="false"
-        android:layout_alignParentTop="true"
-        app:mt_hint="Enter your food"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_below="@id/searchBar_foodList"
-        android:id="@+id/recyclerView_foodList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical">
+        <com.mancj.materialsearchbar.MaterialSearchBar
+            android:id="@+id/searchBar_foodList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            app:mt_hint="Enter your food"
+            app:mt_speechMode="false" />
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView_foodList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/searchBar_foodList"
+            android:scrollbars="vertical">
 
-</RelativeLayout>
+        </android.support.v7.widget.RecyclerView>
+
+    </RelativeLayout>
+
+</android.support.v4.widget.SwipeRefreshLayout>

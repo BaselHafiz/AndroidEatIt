@@ -3,6 +3,7 @@ package com.bmacode17.androideatit.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -49,7 +50,7 @@ public class FoodList extends AppCompatActivity {
     FirebaseRecyclerAdapter<Food, FoodViewHolder> adapter;
     FirebaseRecyclerAdapter<Food, FoodViewHolder> searchAdapter;
     Database localDb;
-
+    SwipeRefreshLayout swipeRefreshLayout_foodList;
     List<String> suggestedList;
     MaterialSearchBar searchBar_foodList;
 
@@ -108,18 +109,50 @@ public class FoodList extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView_foodList.setLayoutManager(layoutManager);
 
-        if(getIntent() != null)
-            categoryId = getIntent().getStringExtra("categoryId");
+        swipeRefreshLayout_foodList = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_foodList);
+        swipeRefreshLayout_foodList.setColorSchemeResources(R.color.colorPrimary
+                , android.R.color.holo_green_dark
+                , android.R.color.holo_orange_dark
+                , android.R.color.holo_blue_dark);
+        swipeRefreshLayout_foodList.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
 
-        if(! categoryId.isEmpty() && categoryId !=null){
+                if(getIntent() != null)
+                    categoryId = getIntent().getStringExtra("categoryId");
 
-            if(Common.isConnectedToInternet(getBaseContext()))
-                loadFoodList(categoryId);
-            else{
-                Toast.makeText(FoodList.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
-                return;
+                if(! categoryId.isEmpty() && categoryId !=null){
+
+                    if(Common.isConnectedToInternet(getBaseContext()))
+                        loadFoodList(categoryId);
+                    else{
+                        Toast.makeText(FoodList.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
             }
-        }
+        });
+
+        // Default , load for the first time
+
+        swipeRefreshLayout_foodList.post(new Runnable() {
+            @Override
+            public void run() {
+
+                if(getIntent() != null)
+                    categoryId = getIntent().getStringExtra("categoryId");
+
+                if(! categoryId.isEmpty() && categoryId !=null){
+
+                    if(Common.isConnectedToInternet(getBaseContext()))
+                        loadFoodList(categoryId);
+                    else{
+                        Toast.makeText(FoodList.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            }
+        });
 
         searchBar_foodList = (MaterialSearchBar) findViewById(R.id.searchBar_foodList);
         searchBar_foodList.setHint("Enter your food ... ");
@@ -288,5 +321,6 @@ public class FoodList extends AppCompatActivity {
         // pc_0 - Using an unspecified index.
         // Consider adding '".indexOn": "MenuId"' at food to your security and Firebase Database rules for better performance
         // do it in the firebase console website in Rules
+        swipeRefreshLayout_foodList.setRefreshing(false);
     }
 }

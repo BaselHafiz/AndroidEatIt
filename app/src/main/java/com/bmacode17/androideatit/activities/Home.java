@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -59,6 +60,7 @@ public class Home extends AppCompatActivity
     FirebaseRecyclerAdapter<Category, MenuViewHolder> adapter;
     AlertDialog changePasswordDialog;
     EditText editText_oldPassword, editText_newPassword, editText_repeatNewPassword;
+    SwipeRefreshLayout swipeRefreshLayout_home;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,39 @@ public class Home extends AppCompatActivity
         // Init firebase
         database = FirebaseDatabase.getInstance();
         table_category = database.getReference("category");
+
+        swipeRefreshLayout_home = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_home);
+        swipeRefreshLayout_home.setColorSchemeResources(R.color.colorPrimary
+                , android.R.color.holo_green_dark
+                , android.R.color.holo_orange_dark
+                , android.R.color.holo_blue_dark);
+        swipeRefreshLayout_home.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                if(Common.isConnectedToInternet(getBaseContext()))
+                    loadMenu();
+                else{
+                    Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        });
+
+        // Default , load for the first time
+
+        swipeRefreshLayout_home.post(new Runnable() {
+            @Override
+            public void run() {
+
+                if(Common.isConnectedToInternet(getBaseContext()))
+                    loadMenu();
+                else{
+                    Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -104,12 +139,6 @@ public class Home extends AppCompatActivity
         layoutManager = new LinearLayoutManager(this);
         recyclerView_menu.setLayoutManager(layoutManager);
 
-        if(Common.isConnectedToInternet(getBaseContext()))
-            loadMenu();
-        else{
-            Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
-            return;
-        }
         updateToken(FirebaseInstanceId.getInstance().getToken());
     }
 
@@ -146,6 +175,7 @@ public class Home extends AppCompatActivity
         };
 
         recyclerView_menu.setAdapter(adapter);
+        swipeRefreshLayout_home.setRefreshing(false);
     }
 
     @Override
