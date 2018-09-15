@@ -1,5 +1,6 @@
 package com.bmacode17.androideatit.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -32,6 +33,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import io.paperdb.Paper;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,6 +45,13 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference table_user;
 
+    // Press Ctrl + O
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
         This method is deprecated so simply you can delete this line of code in your class. because according to the latest Facebook we now don't need to initialize the SDK manually, it gets initialize by itself.
          */
         FacebookSdk.sdkInitialize(getApplicationContext());
+
+        // Add this code before setContentView method
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/cambria.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
         setContentView(R.layout.activity_main);
 
         printKeyHash();

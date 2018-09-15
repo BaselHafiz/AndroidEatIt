@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -47,6 +49,8 @@ import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
 import io.paperdb.Paper;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -62,10 +66,22 @@ public class Home extends AppCompatActivity
     EditText editText_oldPassword, editText_newPassword, editText_repeatNewPassword;
     SwipeRefreshLayout swipeRefreshLayout_home;
 
+    // Press Ctrl + O
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Add this code before setContentView method
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/cambria.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Menu");
@@ -86,9 +102,9 @@ public class Home extends AppCompatActivity
             @Override
             public void onRefresh() {
 
-                if(Common.isConnectedToInternet(getBaseContext()))
+                if (Common.isConnectedToInternet(getBaseContext()))
                     loadMenu();
-                else{
+                else {
                     Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -101,9 +117,9 @@ public class Home extends AppCompatActivity
             @Override
             public void run() {
 
-                if(Common.isConnectedToInternet(getBaseContext()))
+                if (Common.isConnectedToInternet(getBaseContext()))
                     loadMenu();
-                else{
+                else {
                     Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -114,7 +130,7 @@ public class Home extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent cartIntent = new Intent(Home.this,Cart.class);
+                Intent cartIntent = new Intent(Home.this, Cart.class);
                 startActivity(cartIntent);
             }
         });
@@ -136,7 +152,9 @@ public class Home extends AppCompatActivity
         // Use firebase UI to bind data from Firebase to Recycler view
         recyclerView_menu = (RecyclerView) findViewById(R.id.recyclerView_menu);
         recyclerView_menu.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
+//        layoutManager = new LinearLayoutManager(this);
+
+        layoutManager = new GridLayoutManager(this, 2);
         recyclerView_menu.setLayoutManager(layoutManager);
 
         updateToken(FirebaseInstanceId.getInstance().getToken());
@@ -146,7 +164,7 @@ public class Home extends AppCompatActivity
 
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference table_token = db.getReference("token");
-        Token data = new Token(token , false);  // false because this token is sent from the client
+        Token data = new Token(token, false);  // false because this token is sent from the client
         table_token.child(Common.currentUser.getPhone()).setValue(data);
     }
 
@@ -165,9 +183,9 @@ public class Home extends AppCompatActivity
                     public void onClick(View view, int position, boolean isLongClick) {
 
                         // Get categoryID and send it to new activity
-                        Intent foodListIntent = new Intent(Home.this,FoodList.class);
+                        Intent foodListIntent = new Intent(Home.this, FoodList.class);
                         // CategoryId is a key , so we just get the key of the clicked item
-                        foodListIntent.putExtra("categoryId" , adapter.getRef(position).getKey());
+                        foodListIntent.putExtra("categoryId", adapter.getRef(position).getKey());
                         startActivity(foodListIntent);
                     }
                 });
@@ -216,23 +234,21 @@ public class Home extends AppCompatActivity
 
         } else if (id == R.id.nav_cart) {
 
-            Intent cartIntent = new Intent(Home.this , Cart.class);
+            Intent cartIntent = new Intent(Home.this, Cart.class);
             startActivity(cartIntent);
 
         } else if (id == R.id.nav_orders) {
 
-            Intent orderStatusIntent = new Intent(Home.this , OrderStatus.class);
+            Intent orderStatusIntent = new Intent(Home.this, OrderStatus.class);
             startActivity(orderStatusIntent);
 
         } else if (id == R.id.nav_logout) {
 
             Paper.book().destroy();
-            Intent signInIntent = new Intent(Home.this , SignIn.class);
+            Intent signInIntent = new Intent(Home.this, SignIn.class);
             signInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signInIntent);
-        }
-
-        else if (id == R.id.nav_changePassword) {
+        } else if (id == R.id.nav_changePassword) {
             showChangePasswordDialog();
         }
 
@@ -272,12 +288,12 @@ public class Home extends AppCompatActivity
                 final android.app.AlertDialog waitingDialog = new SpotsDialog(Home.this);
                 waitingDialog.show();
 
-                if(editText_oldPassword.getText().toString().equals(Common.currentUser.getPassword())){
+                if (editText_oldPassword.getText().toString().equals(Common.currentUser.getPassword())) {
 
-                    if(editText_newPassword.getText().toString().equals(editText_repeatNewPassword.getText().toString())){
+                    if (editText_newPassword.getText().toString().equals(editText_repeatNewPassword.getText().toString())) {
 
-                        Map<String,Object> updatePassword = new HashMap<>();
-                        updatePassword.put("password",editText_newPassword.getText().toString());
+                        Map<String, Object> updatePassword = new HashMap<>();
+                        updatePassword.put("password", editText_newPassword.getText().toString());
 
                         DatabaseReference table_user = FirebaseDatabase.getInstance().getReference("user");
                         table_user.child(Common.currentUser.getPhone())
@@ -296,12 +312,12 @@ public class Home extends AppCompatActivity
                                         Toast.makeText(Home.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                    }else{
+                    } else {
                         waitingDialog.dismiss();
                         Toast.makeText(Home.this, "New password doesn't match !", Toast.LENGTH_SHORT).show();
                     }
 
-                }else{
+                } else {
                     waitingDialog.dismiss();
                     Toast.makeText(Home.this, "Wrong old password !", Toast.LENGTH_SHORT).show();
                 }

@@ -14,7 +14,7 @@ import com.bmacode17.androideatit.interfaces.ItemClickListener;
 
 public class FoodViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public TextView textView_foodName;
+    public TextView textView_foodName , textView_food_price;
     public ImageView imageView_foodImage , imageView_favourite , imageView_share;
     private ItemClickListener itemClickListener;
 
@@ -22,6 +22,7 @@ public class FoodViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         super(itemView);
 
         textView_foodName = (TextView) itemView.findViewById(R.id.textView_foodName);
+        textView_food_price = (TextView) itemView.findViewById(R.id.textView_food_price);
         imageView_foodImage = (ImageView) itemView.findViewById(R.id.imageView_foodImage);
         imageView_favourite = (ImageView) itemView.findViewById(R.id.imageView_favourite);
         imageView_share = (ImageView) itemView.findViewById(R.id.imageView_share);

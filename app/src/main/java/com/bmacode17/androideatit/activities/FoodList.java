@@ -1,5 +1,6 @@
 package com.bmacode17.androideatit.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -38,6 +39,9 @@ import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class FoodList extends AppCompatActivity {
 
@@ -86,9 +90,22 @@ public class FoodList extends AppCompatActivity {
         }
     };
 
+    // Press Ctrl + O
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Add this code before setContentView method
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/cambria.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
         setContentView(R.layout.activity_food_list);
 
         localDb = new Database(this);
@@ -268,6 +285,7 @@ public class FoodList extends AppCompatActivity {
             protected void populateViewHolder(final FoodViewHolder viewHolder, final Food model, final int position) {
 
                 viewHolder.textView_foodName.setText(model.getName());
+                viewHolder.textView_food_price.setText(String.format("$ %s" , model.getPrice().toString()));
                 Picasso.with(getBaseContext()).load(model.getImage()).into(viewHolder.imageView_foodImage);
 
                 if (localDb.isFavourites(adapter.getRef(position).getKey()))
