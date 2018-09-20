@@ -9,6 +9,7 @@ import com.bmacode17.androideatit.models.Request;
 import com.bmacode17.androideatit.models.Token;
 import com.bmacode17.androideatit.viewHolders.MenuViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -40,6 +41,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -170,10 +172,13 @@ public class Home extends AppCompatActivity
 
     private void loadMenu() {
 
-        adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(Category.class, R.layout.menu_item_cardview,
-                MenuViewHolder.class, table_category) {
+        FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
+                .setQuery(table_category,Category.class)
+                .build();
+
+        adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(options) {
             @Override
-            protected void populateViewHolder(MenuViewHolder viewHolder, Category model, int position) {
+            protected void onBindViewHolder(@NonNull MenuViewHolder viewHolder, int position, @NonNull Category model) {
 
                 viewHolder.textView_menuName.setText(model.getName());
                 Picasso.with(getBaseContext()).load(model.getImage()).into(viewHolder.imageView_menuImage);
@@ -190,10 +195,39 @@ public class Home extends AppCompatActivity
                     }
                 });
             }
+
+            @Override
+            public MenuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+                View itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.menu_item_cardview,parent,false);
+                return new MenuViewHolder(itemView);
+            }
         };
 
+        adapter.startListening();
         recyclerView_menu.setAdapter(adapter);
         swipeRefreshLayout_home.setRefreshing(false);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if(adapter != null)
+            adapter.stopListening();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (Common.isConnectedToInternet(getBaseContext()))
+            loadMenu();
+        else {
+            Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
+            return;
+        }
     }
 
     @Override
