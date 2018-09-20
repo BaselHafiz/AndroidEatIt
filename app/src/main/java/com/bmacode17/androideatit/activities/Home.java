@@ -42,6 +42,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,6 +96,39 @@ public class Home extends AppCompatActivity
         // Init firebase
         database = FirebaseDatabase.getInstance();
         table_category = database.getReference("category");
+
+        FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
+                .setQuery(table_category,Category.class)
+                .build();
+
+        adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull MenuViewHolder viewHolder, int position, @NonNull Category model) {
+
+                viewHolder.textView_menuName.setText(model.getName());
+                Picasso.with(getBaseContext()).load(model.getImage()).into(viewHolder.imageView_menuImage);
+                final Category clickedItem = model;
+                viewHolder.setItemClickListener(new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position, boolean isLongClick) {
+
+                        // Get categoryID and send it to new activity
+                        Intent foodListIntent = new Intent(Home.this, FoodList.class);
+                        // CategoryId is a key , so we just get the key of the clicked item
+                        foodListIntent.putExtra("categoryId", adapter.getRef(position).getKey());
+                        startActivity(foodListIntent);
+                    }
+                });
+            }
+
+            @Override
+            public MenuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+                View itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.menu_item_cardview,parent,false);
+                return new MenuViewHolder(itemView);
+            }
+        };
 
         swipeRefreshLayout_home = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_home);
         swipeRefreshLayout_home.setColorSchemeResources(R.color.colorPrimary
@@ -155,9 +190,13 @@ public class Home extends AppCompatActivity
         recyclerView_menu = (RecyclerView) findViewById(R.id.recyclerView_menu);
         recyclerView_menu.setHasFixedSize(true);
 //        layoutManager = new LinearLayoutManager(this);
-
         layoutManager = new GridLayoutManager(this, 2);
         recyclerView_menu.setLayoutManager(layoutManager);
+
+        // Animation
+        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(recyclerView_menu.getContext()
+                ,R.anim.layout_fall_down);
+        recyclerView_menu.setLayoutAnimation(controller);
 
         updateToken(FirebaseInstanceId.getInstance().getToken());
     }
@@ -172,42 +211,13 @@ public class Home extends AppCompatActivity
 
     private void loadMenu() {
 
-        FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
-                .setQuery(table_category,Category.class)
-                .build();
-
-        adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull MenuViewHolder viewHolder, int position, @NonNull Category model) {
-
-                viewHolder.textView_menuName.setText(model.getName());
-                Picasso.with(getBaseContext()).load(model.getImage()).into(viewHolder.imageView_menuImage);
-                final Category clickedItem = model;
-                viewHolder.setItemClickListener(new ItemClickListener() {
-                    @Override
-                    public void onClick(View view, int position, boolean isLongClick) {
-
-                        // Get categoryID and send it to new activity
-                        Intent foodListIntent = new Intent(Home.this, FoodList.class);
-                        // CategoryId is a key , so we just get the key of the clicked item
-                        foodListIntent.putExtra("categoryId", adapter.getRef(position).getKey());
-                        startActivity(foodListIntent);
-                    }
-                });
-            }
-
-            @Override
-            public MenuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-                View itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.menu_item_cardview,parent,false);
-                return new MenuViewHolder(itemView);
-            }
-        };
-
         adapter.startListening();
         recyclerView_menu.setAdapter(adapter);
         swipeRefreshLayout_home.setRefreshing(false);
+
+        // Animation
+        recyclerView_menu.getAdapter().notifyDataSetChanged();
+        recyclerView_menu.scheduleLayoutAnimation();
     }
 
     @Override
