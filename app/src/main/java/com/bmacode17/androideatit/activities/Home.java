@@ -1,5 +1,6 @@
 package com.bmacode17.androideatit.activities;
 
+import com.andremion.counterfab.CounterFab;
 import com.bmacode17.androideatit.R;
 import com.bmacode17.androideatit.common.Common;
 import com.bmacode17.androideatit.databases.Database;
@@ -69,6 +70,7 @@ public class Home extends AppCompatActivity
     AlertDialog changePasswordDialog;
     EditText editText_oldPassword, editText_newPassword, editText_repeatNewPassword;
     SwipeRefreshLayout swipeRefreshLayout_home;
+    CounterFab fab;
 
     // Press Ctrl + O
 
@@ -163,7 +165,7 @@ public class Home extends AppCompatActivity
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (CounterFab) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,6 +173,8 @@ public class Home extends AppCompatActivity
                 startActivity(cartIntent);
             }
         });
+
+        fab.setCount(new Database(this).getCountCarts());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -232,6 +236,7 @@ public class Home extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+        fab.setCount(new Database(this).getCountCarts());
         if (Common.isConnectedToInternet(getBaseContext()))
             loadMenu();
         else {

@@ -12,6 +12,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andremion.counterfab.CounterFab;
 import com.bmacode17.androideatit.R;
 import com.bmacode17.androideatit.common.Common;
 import com.bmacode17.androideatit.databases.Database;
@@ -49,7 +50,8 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
     ImageView imageView_food_image;
     CollapsingToolbarLayout collapsingToolbarLayout;
     ElegantNumberButton numberCounter;
-    FloatingActionButton fabCart , fabRating;
+    FloatingActionButton fabRating;
+    CounterFab fabCart;
     Food currentFood;
     RatingBar ratingBar;
 
@@ -76,7 +78,7 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
         textView_foodDescription = (TextView) findViewById(R.id.textView_foodDescription);
         imageView_food_image = (ImageView) findViewById(R.id.imageView_food_image);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
-        fabCart = (FloatingActionButton) findViewById(R.id.fabCart);
+        fabCart = (CounterFab) findViewById(R.id.fabCart);
         fabRating = (FloatingActionButton) findViewById(R.id.fabRating);
         numberCounter= (ElegantNumberButton) findViewById(R.id.numberCounter);
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
@@ -110,6 +112,8 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
                 Toast.makeText(FoodDetails.this, "Added To Cart", Toast.LENGTH_SHORT).show();
             }
         });
+
+        fabCart.setCount(new Database(getApplicationContext()).getCountCarts());
 
         // Get food id from intent
         if(getIntent() != null)

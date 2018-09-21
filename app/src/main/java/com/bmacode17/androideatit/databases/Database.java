@@ -100,4 +100,17 @@ public class Database extends SQLiteAssetHelper {
         cursor.close();
         return true;
     }
+
+    public int getCountCarts() {
+        int count = 0;
+        SQLiteDatabase db = getReadableDatabase();
+        String query = String.format("SELECT COUNT(*) FROM OrderDetails");
+        Cursor cursor = db.rawQuery(query,null);
+        if(cursor.moveToFirst()){
+            do{
+                count = cursor.getInt(0);
+            }while(cursor.moveToNext());
+        }
+        return count;
+    }
 }

@@ -24,6 +24,7 @@ import com.bmacode17.androideatit.databases.Database;
 import com.bmacode17.androideatit.interfaces.ItemClickListener;
 import com.bmacode17.androideatit.models.Category;
 import com.bmacode17.androideatit.models.Food;
+import com.bmacode17.androideatit.models.Order;
 import com.bmacode17.androideatit.viewHolders.FoodViewHolder;
 import com.bmacode17.androideatit.viewHolders.MenuViewHolder;
 import com.facebook.CallbackManager;
@@ -340,6 +341,21 @@ public class FoodList extends AppCompatActivity {
                         Picasso.with(getApplicationContext())
                                 .load(model.getImage())
                                 .into(target);
+                    }
+                });
+
+                viewHolder.imageView_addToCart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        new Database(getBaseContext()).addToCarts(new Order(
+                                adapter.getRef(position).getKey(),
+                                model.getName(),
+                                "1",
+                                model.getPrice(),
+                                model.getDiscount()));
+
+                        Toast.makeText(FoodList.this, "Added To Cart", Toast.LENGTH_SHORT).show();
                     }
                 });
 

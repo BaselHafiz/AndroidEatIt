@@ -44,7 +44,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
     
-    <android.support.design.widget.FloatingActionButton
+    <com.andremion.counterfab.CounterFab
         android:id="@+id/fabCart"
         android:src="@drawable/ic_shopping_cart_black_24dp"
         android:elevation="6dp"
