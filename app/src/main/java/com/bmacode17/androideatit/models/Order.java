@@ -6,6 +6,7 @@ package com.bmacode17.androideatit.models;
 
 public class Order {
 
+    private int id;
     private String productId;
     private String productName;
     private String quantity;
@@ -15,12 +16,29 @@ public class Order {
     public Order() {
     }
 
+    public Order(int id, String productId, String productName, String quantity, String price, String discount) {
+        this.id = id;
+        this.productId = productId;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.price = price;
+        this.discount = discount;
+    }
+
     public Order(String productId, String productName, String quantity, String price, String discount) {
         this.productId = productId;
         this.productName = productName;
         this.quantity = quantity;
         this.price = price;
         this.discount = discount;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getProductId() {

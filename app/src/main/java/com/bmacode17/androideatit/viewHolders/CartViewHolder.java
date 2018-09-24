@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.bmacode17.androideatit.R;
 import com.bmacode17.androideatit.common.Common;
 import com.bmacode17.androideatit.interfaces.ItemClickListener;
+import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 
 /**
  * Created by User on 06-Jul-18.
@@ -19,7 +20,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder implements
         View.OnCreateContextMenuListener {
 
     public TextView textView_cartItemName , textView_cartItemPrice;
-    public ImageView imageView_cartItemCount;
+    public ElegantNumberButton numberButton_quantity;
     private ItemClickListener itemClickListener;
 
     public void setTextView_cartItemName(TextView textView_cartItemName) {
@@ -31,7 +32,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder implements
 
         textView_cartItemName = (TextView) itemView.findViewById(R.id.textView_cartItemName);
         textView_cartItemPrice = (TextView) itemView.findViewById(R.id.textView_cartItemPrice);
-        imageView_cartItemCount = (ImageView) itemView.findViewById(R.id.imageView_cartItemCount);
+        numberButton_quantity = (ElegantNumberButton) itemView.findViewById(R.id.numberButton_quantity);
 
         itemView.setOnCreateContextMenuListener(this);
     }

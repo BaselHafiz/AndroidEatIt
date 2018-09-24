@@ -70,7 +70,7 @@ public class Cart extends AppCompatActivity {
     DatabaseReference table_request;
     RecyclerView recyclerView_listCart;
     RecyclerView.LayoutManager layoutManager;
-    TextView textView_totalPrice;
+    public TextView textView_totalPrice;
     EditText editText_address, editText_notes;
     FButton button_placeOrder;
     List<Order> carts = new ArrayList<>();
@@ -285,7 +285,6 @@ public class Cart extends AppCompatActivity {
         Locale locale = new Locale("en", "US");
         NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
         textView_totalPrice.setText(fmt.format(totalPrice));
-
     }
 
     public boolean onContextItemSelected(MenuItem item) {
