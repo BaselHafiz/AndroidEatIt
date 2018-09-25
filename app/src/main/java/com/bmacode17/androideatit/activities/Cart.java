@@ -78,10 +78,6 @@ public class Cart extends AppCompatActivity {
     AlertDialog addressDialog;
     APIService mService;
 
-    // Paypal payment
-    static PayPalConfiguration configuration = new PayPalConfiguration()
-            .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX) // we'll use sandbox for testing purposes , change it for real process
-            .clientId(Config.PAYPAL_CLIENT_ID);
     String address , notes;
 
     // Press Ctrl + O
@@ -102,11 +98,6 @@ public class Cart extends AppCompatActivity {
                 .build());
 
         setContentView(R.layout.activity_cart);
-
-        // Init Paypal
-        Intent intent = new Intent(this, PayPalService.class);
-        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,configuration);
-        startService(intent);
 
         // Init service
         mService = Common.getFCMService();
@@ -158,21 +149,23 @@ public class Cart extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                // Show PayPal for payment
-
                 address = editText_address.getText().toString();
                 notes = editText_notes.getText().toString();
-                String formatAmount = textView_totalPrice.getText().toString()
-                        .replace("$","")
-                        .replace(",","");
-                PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(formatAmount)
-                        ,"USD"
-                        ,"Eat It App Order"
-                        ,PayPalPayment.PAYMENT_INTENT_SALE);
-                Intent intent = new Intent(getApplicationContext(), PaymentActivity.class);
-                intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,configuration);
-                intent.putExtra(PaymentActivity.EXTRA_PAYMENT,payPalPayment);
-                startActivityForResult(intent,PAYPAL_REQUEST_CODE);
+                Request request = new Request(
+                        Common.currentUser.getPhone(),
+                        Common.currentUser.getName(),
+                        address,
+                        textView_totalPrice.getText().toString(),
+                        carts,
+                        notes);
+
+                // Submit to firebase
+                // currentTimeMillis is considered as a key
+                String orderNumber = String.valueOf(System.currentTimeMillis());
+                table_request.child(orderNumber).setValue(request);
+                // Delete carts
+                new Database(getBaseContext()).cleanCarts();
+                sendOrderNotification(orderNumber);
             }
         });
 
@@ -195,22 +188,7 @@ public class Cart extends AppCompatActivity {
                         String  paymentDetails = confirmation.toJSONObject().toString(4);
                         JSONObject jsonObject = new JSONObject(paymentDetails);
 
-                        Request request = new Request(
-                                Common.currentUser.getPhone(),
-                                Common.currentUser.getName(),
-                                address,
-                                textView_totalPrice.getText().toString(),
-                                carts,
-                                notes,
-                                jsonObject.getJSONObject("response").getString("state")); // Payment State
 
-                        // Submit to firebase
-                        // currentTimeMillis is considered as a key
-                        String orderNumber = String.valueOf(System.currentTimeMillis());
-                        table_request.child(orderNumber).setValue(request);
-                        // Delete carts
-                        new Database(getBaseContext()).cleanCarts();
-                        sendOrderNotification(orderNumber);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
