@@ -173,37 +173,6 @@ public class Cart extends AppCompatActivity {
         addressDialog.show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if(requestCode == PAYPAL_REQUEST_CODE){
-
-            if(resultCode == RESULT_OK){
-
-                PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
-                if(confirmation != null){
-
-                    try {
-
-                        String  paymentDetails = confirmation.toJSONObject().toString(4);
-                        JSONObject jsonObject = new JSONObject(paymentDetails);
-
-
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            else if(resultCode == Activity.RESULT_CANCELED){
-                Toast.makeText(this, "Payment is canceled", Toast.LENGTH_SHORT).show();
-            }
-            else if(resultCode == PaymentActivity.RESULT_EXTRAS_INVALID){
-                Toast.makeText(this, "Payment is invalid", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     private void sendOrderNotification(final String orderNumber) {
 
         FirebaseDatabase db = FirebaseDatabase.getInstance();
