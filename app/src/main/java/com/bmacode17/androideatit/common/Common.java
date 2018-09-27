@@ -20,6 +20,7 @@ public class Common {
     public static final String DELETE = "Delete";
     public static final String USER_KEY = "User";
     public static final String PASSWORD_KEY = "Password";
+    public static final String PHONE_TEXT = "userPhone";
 
     public static APIService getFCMService(){
         return RetrofitClient.getClient(baseUrl).create(APIService.class);
