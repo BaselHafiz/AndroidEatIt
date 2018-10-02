@@ -34,6 +34,10 @@ import com.bmacode17.androideatit.models.Token;
 import com.bmacode17.androideatit.remotes.APIService;
 import com.bmacode17.androideatit.viewHolders.FoodViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -66,19 +70,21 @@ public class Cart extends AppCompatActivity {
 
     private static final String TAG = "Basel";
     private static final int PAYPAL_REQUEST_CODE = 1;
+    public TextView textView_totalPrice;
     FirebaseDatabase database;
     DatabaseReference table_request;
     RecyclerView recyclerView_listCart;
     RecyclerView.LayoutManager layoutManager;
-    public TextView textView_totalPrice;
-    EditText editText_address, editText_notes;
+    EditText editText_notes;
+    //    EditText editText_address;
     FButton button_placeOrder;
     List<Order> carts = new ArrayList<>();
     CartAdapter cartAdapter;
     AlertDialog addressDialog;
     APIService mService;
 
-    String address , notes;
+    String address, notes;
+    Place shippingAddress;
 
     // Press Ctrl + O
 
@@ -134,14 +140,40 @@ public class Cart extends AppCompatActivity {
         myAlertDialog.setView(dialogView);
         myAlertDialog.setCancelable(true);
         myAlertDialog.setTitle("One more step !");
-        editText_address = (EditText) dialogView.findViewById(R.id.editText_address);
+//        editText_address = (EditText) dialogView.findViewById(R.id.editText_address);
+        PlaceAutocompleteFragment placeAutocompleteFragment_address = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete);
+        // Hide search icon before fragment
+        placeAutocompleteFragment_address.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
+        // Set hint for the fragment
+        ((EditText) placeAutocompleteFragment_address.getView().findViewById(R.id.place_autocomplete_search_input))
+                .setHint("CLICK HERE !");
+
+        ((EditText) placeAutocompleteFragment_address.getView().findViewById(R.id.place_autocomplete_search_input))
+                .setTextSize(15);
+        placeAutocompleteFragment_address.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                shippingAddress = place;
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.d(TAG, "onError: " + status.getStatusMessage());
+            }
+        });
+
         editText_notes = (EditText) dialogView.findViewById(R.id.editText_notes);
+
         myAlertDialog.setIcon(R.drawable.ic_shopping_cart_black_24dp);
 
         myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
                 Toast.makeText(Cart.this, "Order is canceled", Toast.LENGTH_LONG).show();
+                // Remove fragment
+                getFragmentManager().beginTransaction()
+                        .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
             }
         });
 
@@ -149,7 +181,7 @@ public class Cart extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                address = editText_address.getText().toString();
+                address = shippingAddress.getAddress().toString();
                 notes = editText_notes.getText().toString();
                 Request request = new Request(
                         Common.currentUser.getPhone(),
@@ -157,17 +189,23 @@ public class Cart extends AppCompatActivity {
                         address,
                         textView_totalPrice.getText().toString(),
                         carts,
-                        notes);
+                        notes,
+                        String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude));
 
                 // Submit to firebase
                 // currentTimeMillis is considered as a key
                 String orderNumber = String.valueOf(System.currentTimeMillis());
                 table_request.child(orderNumber).setValue(request);
+                dialog.dismiss();
+                // Remove fragment
+                getFragmentManager().beginTransaction()
+                        .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
                 // Delete carts
                 new Database(getBaseContext()).cleanCarts();
                 sendOrderNotification(orderNumber);
             }
         });
+
 
         addressDialog = myAlertDialog.create();
         addressDialog.show();
@@ -194,19 +232,19 @@ public class Cart extends AppCompatActivity {
                                 @Override
                                 public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
 
-                                    if(response.code() == 200){
+                                    if (response.code() == 200) {
 
                                         if (response.body().success == 1) {
                                             Toast.makeText(Cart.this, "Thank you , order is placed ", Toast.LENGTH_LONG).show();
                                             finish();
-                                        }else
+                                        } else
                                             Toast.makeText(Cart.this, "Failed ", Toast.LENGTH_LONG).show();
                                     }
                                 }
 
                                 @Override
                                 public void onFailure(Call<MyResponse> call, Throwable t) {
-                                    Log.d(TAG, "onFailure: Error: " + t.getMessage());
+
                                 }
                             });
                 }

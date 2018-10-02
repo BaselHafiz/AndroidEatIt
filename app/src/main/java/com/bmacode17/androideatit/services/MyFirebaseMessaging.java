@@ -62,7 +62,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 //      I just noticed this bug in the app. notification sounds only play when app is in foreground. but once app is in background, notification sound doesnt play and launcher icon is used instead of notification icon
 
         RemoteMessage.Notification notification = remoteMessage.getNotification();
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, OrderStatus.class);
+        intent.putExtra(Common.PHONE_TEXT, Common.currentUser.getPhone());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,PendingIntent.FLAG_ONE_SHOT);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
