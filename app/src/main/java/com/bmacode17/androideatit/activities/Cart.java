@@ -192,20 +192,21 @@ public class Cart extends AppCompatActivity {
                         notes,
                         String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude));
 
+                // Remove fragment
+                getFragmentManager().beginTransaction()
+                        .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+
                 // Submit to firebase
                 // currentTimeMillis is considered as a key
                 String orderNumber = String.valueOf(System.currentTimeMillis());
                 table_request.child(orderNumber).setValue(request);
                 dialog.dismiss();
-                // Remove fragment
-                getFragmentManager().beginTransaction()
-                        .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+
                 // Delete carts
                 new Database(getBaseContext()).cleanCarts();
                 sendOrderNotification(orderNumber);
             }
         });
-
 
         addressDialog = myAlertDialog.create();
         addressDialog.show();
