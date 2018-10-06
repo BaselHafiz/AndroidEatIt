@@ -41,6 +41,7 @@ dependencies {
     implementation 'com.github.d-max:spots-dialog:0.7@aar'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.3.0'
     implementation 'com.stepstone.apprating:app-rating:2.0.0'
     implementation 'io.paperdb:paperdb:2.1'
     implementation 'com.github.rey5137:material:1.2.4'

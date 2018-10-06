@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 
 import com.bmacode17.androideatit.models.User;
 import com.bmacode17.androideatit.remotes.APIService;
+import com.bmacode17.androideatit.remotes.GoogleAPIService;
 import com.bmacode17.androideatit.remotes.RetrofitClient;
 
 /**
@@ -17,13 +18,21 @@ public class Common {
 
     public static User currentUser;
     public static final String baseUrl = "https://fcm.googleapis.com";
+    public static final String GOOGLE_API_URL = "https://maps.googleapis.com";
+
     public static final String DELETE = "Delete";
     public static final String USER_KEY = "User";
     public static final String PASSWORD_KEY = "Password";
     public static final String PHONE_TEXT = "userPhone";
 
     public static APIService getFCMService(){
+
         return RetrofitClient.getClient(baseUrl).create(APIService.class);
+    }
+
+    public static GoogleAPIService getGoogleMapAPIService(){
+
+        return RetrofitClient.getGoogleClient(GOOGLE_API_URL).create(GoogleAPIService.class);
     }
 
     public static String convertStatusToCode(String status) {

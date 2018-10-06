@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/linerLayout"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
+    android:layout_height="230dp"
     android:layout_centerHorizontal="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:padding="20dp"
-        android:layout_height="200dp"
+        android:layout_height="230dp"
         android:orientation="vertical">
 
         <TextView
@@ -42,6 +42,23 @@
             android:layout_marginTop="7dp"
             android:textSize="14dp" />
 
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButton_shipToThisAddress"
+                android:text="Ship to this address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/radioButton_homeAddress"
+                android:text="Home address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </RadioGroup>
     </LinearLayout>
 
 </RelativeLayout>
