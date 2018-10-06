@@ -49,6 +49,7 @@ dependencies {
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
 
     implementation 'com.google.android.gms:play-services-places:12.0.0'
+    implementation 'com.google.android.gms:play-services-location:12.0.0'
     implementation 'com.google.firebase:firebase-storage:12.0.0'
     implementation 'com.google.firebase:firebase-auth:12.0.0'
     implementation 'com.google.firebase:firebase-core:12.0.0'
