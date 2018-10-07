@@ -14,6 +14,7 @@ import com.bmacode17.androideatit.databases.Database;
 import com.bmacode17.androideatit.models.Order;
 import com.bmacode17.androideatit.viewHolders.CartViewHolder;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
+import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -44,6 +45,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
 
     @Override
     public void onBindViewHolder(final CartViewHolder holder, final int position) {
+
+        Picasso.with(cart.getBaseContext())
+                .load(listData.get(position).getImage())
+                .resize(70,70)
+                .centerCrop().into(holder.imageView_cartItemImage);
 
         holder.numberButton_quantity.setNumber(listData.get(position).getQuantity());
         holder.numberButton_quantity.setOnValueChangeListener(new ElegantNumberButton.OnValueChangeListener() {

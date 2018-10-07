@@ -109,6 +109,7 @@ public class Cart extends AppCompatActivity {
     private final int PLAY_SERVICES_RESOLUTION_REQUEST = 2;
     private FusedLocationProviderClient mFusedLocationClient;
     Location currentLocation;
+    boolean ableToGetDeviceLocation;
 
     // Press Ctrl + O
     @Override
@@ -139,6 +140,7 @@ public class Cart extends AppCompatActivity {
 
         setContentView(R.layout.activity_cart);
 
+        ableToGetDeviceLocation = false;
         // Init services
         mService = Common.getFCMService();
         mGoogleMapAPIService = Common.getGoogleMapAPIService();
@@ -204,7 +206,7 @@ public class Cart extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                if(isChecked){
+                if(isChecked && ableToGetDeviceLocation){
 
                         Log.d(TAG, "onCheckedChanged: " + String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=false",
                                 currentLocation.getLatitude(),currentLocation.getLongitude()));
@@ -274,7 +276,7 @@ public class Cart extends AppCompatActivity {
                         address = shippingAddress.getAddress().toString();
                     }else{
 
-                        Toast.makeText(Cart.this, "Please enter address or select option address", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Cart.this, "No address is entered", Toast.LENGTH_SHORT).show();
                         // Remove fragment
                         getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
                         return;
@@ -283,7 +285,7 @@ public class Cart extends AppCompatActivity {
 
                 if(TextUtils.isEmpty(address)){
 
-                    Toast.makeText(Cart.this, "Please enter address or select option address", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Cart.this, "No address is entered", Toast.LENGTH_SHORT).show();
                     // Remove fragment
                     getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
                     return;
@@ -437,6 +439,7 @@ public class Cart extends AppCompatActivity {
                         Log.d(TAG, "onComplete: Location: " + currentLocation.getLatitude() + " " + currentLocation.getLongitude());
                         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                         Toast.makeText(Cart.this, currentLocation.getLatitude() + " , " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+                        ableToGetDeviceLocation = true;
 
                     } else {
                         Toast.makeText(Cart.this, "Unable to get current location !", Toast.LENGTH_SHORT).show();

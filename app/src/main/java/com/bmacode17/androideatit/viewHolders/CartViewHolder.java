@@ -22,6 +22,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder implements
     public TextView textView_cartItemName , textView_cartItemPrice;
     public ElegantNumberButton numberButton_quantity;
     private ItemClickListener itemClickListener;
+    public ImageView imageView_cartItemImage;
 
     public void setTextView_cartItemName(TextView textView_cartItemName) {
         this.textView_cartItemName = textView_cartItemName;
@@ -33,6 +34,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder implements
         textView_cartItemName = (TextView) itemView.findViewById(R.id.textView_cartItemName);
         textView_cartItemPrice = (TextView) itemView.findViewById(R.id.textView_cartItemPrice);
         numberButton_quantity = (ElegantNumberButton) itemView.findViewById(R.id.numberButton_quantity);
+        imageView_cartItemImage = (ImageView) itemView.findViewById(R.id.imageView_cartItemImage);
 
         itemView.setOnCreateContextMenuListener(this);
     }
