@@ -10,4 +10,12 @@
         android:iconTint="@android:color/white"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/settings"
+        android:orderInCategory="100"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings_applications_black_24dp"
+        android:iconTint="@android:color/white"
+        app:showAsAction="never" />
+
 </menu>

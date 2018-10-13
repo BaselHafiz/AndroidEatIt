@@ -249,6 +249,15 @@ public class Cart extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
+                if(isChecked) {
+                    if (!TextUtils.isEmpty(Common.currentUser.getHomeAddress()) || Common.currentUser.getHomeAddress() != null) {
+                        address = Common.currentUser.getHomeAddress();
+                        ((EditText) placeAutocompleteFragment_address.getView().findViewById(R.id.place_autocomplete_search_input)).setText(address);
+                    }
+                    else{
+                        Toast.makeText(Cart.this, "Please update your home address", Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
 
@@ -292,14 +301,32 @@ public class Cart extends AppCompatActivity {
                 }
 
                 notes = editText_notes.getText().toString();
-                Request request = new Request(
-                        Common.currentUser.getPhone(),
-                        Common.currentUser.getName(),
-                        address,
-                        textView_totalPrice.getText().toString(),
-                        carts,
-                        notes,
-                        String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude));
+
+                String orderNumber;
+                Request request;
+
+                if(shippingAddress != null){
+
+                    request = new Request(
+                            Common.currentUser.getPhone(),
+                            Common.currentUser.getName(),
+                            address,
+                            textView_totalPrice.getText().toString(),
+                            carts,
+                            notes,
+                            String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude));
+                }
+                else{
+
+                    request = new Request(
+                            Common.currentUser.getPhone(),
+                            Common.currentUser.getName(),
+                            address,
+                            textView_totalPrice.getText().toString(),
+                            carts,
+                            notes,
+                            "No Latlng");
+                }
 
                 // Remove fragment
                 getFragmentManager().beginTransaction()
@@ -307,7 +334,7 @@ public class Cart extends AppCompatActivity {
 
                 // Submit to firebase
                 // currentTimeMillis is considered as a key
-                String orderNumber = String.valueOf(System.currentTimeMillis());
+                orderNumber = String.valueOf(System.currentTimeMillis());
                 table_request.child(orderNumber).setValue(request);
                 dialog.dismiss();
 

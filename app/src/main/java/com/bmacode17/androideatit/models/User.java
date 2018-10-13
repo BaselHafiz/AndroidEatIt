@@ -11,6 +11,7 @@ public class User {
     private String phone;
     private String isStaff;
     private String secureCode;
+    private String homeAddress;
 
     public User() {
     }
@@ -20,6 +21,14 @@ public class User {
         this.password = password;
         this.isStaff = "false";
         this.secureCode = secureCode;
+    }
+
+    public String getHomeAddress() {
+        return homeAddress;
+    }
+
+    public void setHomeAddress(String homeAddress) {
+        this.homeAddress = homeAddress;
     }
 
     public String getSecureCode() {

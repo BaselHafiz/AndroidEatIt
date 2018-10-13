@@ -62,13 +62,13 @@ public class Home extends AppCompatActivity
 
     private static final String TAG = "Basel";
     FirebaseDatabase database;
-    DatabaseReference table_category;
+    DatabaseReference table_category, table_user;
     TextView textView_fullName;
     RecyclerView recyclerView_menu;
     RecyclerView.LayoutManager layoutManager;
     FirebaseRecyclerAdapter<Category, MenuViewHolder> adapter;
-    AlertDialog changePasswordDialog;
-    EditText editText_oldPassword, editText_newPassword, editText_repeatNewPassword;
+    AlertDialog changePasswordDialog, setHomeAddressDialog;
+    EditText editText_oldPassword, editText_newPassword, editText_repeatNewPassword, editText_homeAddress;
     SwipeRefreshLayout swipeRefreshLayout_home;
     CounterFab fab;
 
@@ -98,6 +98,7 @@ public class Home extends AppCompatActivity
         // Init firebase
         database = FirebaseDatabase.getInstance();
         table_category = database.getReference("category");
+        table_user = database.getReference("user");
 
         FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
                 .setQuery(table_category,Category.class)
@@ -267,8 +268,12 @@ public class Home extends AppCompatActivity
 
         int id = item.getItemId();
 
-        if (id == R.id.refresh)
+        if (id == R.id.refresh){
             loadMenu();
+        }
+        else if (id == R.id.settings){
+            Toast.makeText(this, "Setting Operations", Toast.LENGTH_SHORT).show();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -281,29 +286,75 @@ public class Home extends AppCompatActivity
 
         if (id == R.id.nav_menu) {
 
-        } else if (id == R.id.nav_cart) {
+        }
+        else if (id == R.id.nav_cart) {
 
             Intent cartIntent = new Intent(Home.this, Cart.class);
             startActivity(cartIntent);
-
-        } else if (id == R.id.nav_orders) {
+        }
+        else if (id == R.id.nav_orders) {
 
             Intent orderStatusIntent = new Intent(Home.this, OrderStatus.class);
             startActivity(orderStatusIntent);
-
-        } else if (id == R.id.nav_logout) {
+        }
+        else if (id == R.id.nav_logout) {
 
             Paper.book().destroy();
             Intent signInIntent = new Intent(Home.this, SignIn.class);
             signInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signInIntent);
-        } else if (id == R.id.nav_changePassword) {
+        }
+        else if (id == R.id.nav_changePassword) {
             showChangePasswordDialog();
+
+        }
+        else if (id == R.id.nav_homeAddress) {
+            showSetHomeAddressDialog();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showSetHomeAddressDialog() {
+
+        AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.home_address_cardview, null);
+        myAlertDialog.setView(dialogView);
+        myAlertDialog.setCancelable(true);
+        myAlertDialog.setTitle("Update Home Address");
+        myAlertDialog.setMessage("Please fill full information");
+        editText_homeAddress = (EditText) dialogView.findViewById(R.id.editText_homeAddress);
+        myAlertDialog.setIcon(R.drawable.ic_home_black_24dp);
+
+        myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+                Toast.makeText(Home.this, "Set home address is canceled", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        myAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+                Common.currentUser.setHomeAddress(editText_homeAddress.getText().toString());
+                table_user.child(Common.currentUser.getPhone()).setValue(Common.currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(Home.this, "Home address is updated", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+
+        setHomeAddressDialog = myAlertDialog.create();
+        setHomeAddressDialog.show();
     }
 
     private void showChangePasswordDialog() {
