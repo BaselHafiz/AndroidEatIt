@@ -1,12 +1,15 @@
 package com.bmacode17.androideatit.activities;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -22,6 +25,8 @@ import com.bmacode17.androideatit.models.Rating;
 import com.bmacode17.androideatit.viewHolders.FoodViewHolder;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import info.hoang8f.widget.FButton;
 import kotlin.collections.ArraysKt;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -54,6 +60,7 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
     CounterFab fabCart;
     Food currentFood;
     RatingBar ratingBar;
+    FButton button_showComments;
 
     // Press Ctrl + O
 
@@ -82,14 +89,24 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
         fabRating = (FloatingActionButton) findViewById(R.id.fabRating);
         numberCounter= (ElegantNumberButton) findViewById(R.id.numberCounter);
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
-
+        button_showComments = (FButton) findViewById(R.id.button_showComments);
         collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.ExpandedAppbar);
         collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.CollapsedAppbar);
 
         database = FirebaseDatabase.getInstance();
         table_food = database.getReference("food");
         table_rating = database.getReference("rating");
-        
+
+        button_showComments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent_showComments = new Intent(FoodDetails.this , ShowComments.class);
+                intent_showComments.putExtra(Common.INTENT_FOOD_ID,foodId);
+                startActivity(intent_showComments);
+            }
+        });
+
         fabRating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -215,38 +232,14 @@ public class FoodDetails extends AppCompatActivity implements RatingDialogListen
                 foodId,
                 String.valueOf(value),
                 comment);
-        /*
-        There is a problem in this function. When a user is giving rating for the first time it works absolutely fine.
-        But suppose the user changes his/her mind about the rating and try to update the ratings then the problem arises.
-        For giving new ratings, the app needs to be forced closed before submitting new ratings.
-        Or else if the rating is immediately updated after the first one, the app stops working and hangs until
-        and unless it is forced closed. After force close, the ratings work fine if the rating is updated.
-        And in the Firebase console when rating is updated without closing the app,
-        the rating keeps on shuffling between the previous rating and the currently updated rating which makes
-        the app to stop working﻿
-        */
 
-        table_rating.child(Common.currentUser.getPhone()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                if(dataSnapshot.child(Common.currentUser.getPhone()).exists()){
-
-                    // Remove old value
-                    table_rating.child(Common.currentUser.getPhone()).removeValue();
-                    // Add new value
-                    table_rating.child(Common.currentUser.getPhone()).setValue(rating);
-                }
-                else
-                    table_rating.child(Common.currentUser.getPhone()).setValue(rating);
-
-                Toast.makeText(FoodDetails.this, "Thank you for your feedback", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        table_rating.push()
+                .setValue(rating)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(FoodDetails.this, "Thank you for your feedback", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

@@ -19,7 +19,7 @@ public class Common {
     public static User currentUser;
     public static final String baseUrl = "https://fcm.googleapis.com";
     public static final String GOOGLE_API_URL = "https://maps.googleapis.com";
-
+    public static final String INTENT_FOOD_ID = "foodId";
     public static final String DELETE = "Delete";
     public static final String USER_KEY = "User";
     public static final String PASSWORD_KEY = "Password";

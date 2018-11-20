@@ -19,10 +19,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyD59b6C-TFGZ8o3-cCZag1UO39yw7vmGwk"/>
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD59b6C-TFGZ8o3-cCZag1UO39yw7vmGwk" />
 
         <activity android:name=".activities.MainActivity">
             <intent-filter>
@@ -40,25 +42,25 @@
         <activity android:name=".activities.FoodList" />
         <activity android:name=".activities.FoodDetails" />
         <activity android:name=".activities.Cart" />
-        <activity android:name=".activities.OrderStatus"></activity>
+        <activity android:name=".activities.OrderStatus" />
 
         <service android:name=".services.MyFirebaseIdService">
             <intent-filter>
-                    <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".services.MyFirebaseMessaging">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <provider
-            android:authorities="com.facebook.app.FacebookContentProvider425494331310510"
             android:name="com.facebook.FacebookContentProvider"
-            android:exported="true"/>
+            android:authorities="com.facebook.app.FacebookContentProvider425494331310510"
+            android:exported="true" />
 
+        <activity android:name=".activities.ShowComments"></activity>
     </application>
 
 </manifest>
