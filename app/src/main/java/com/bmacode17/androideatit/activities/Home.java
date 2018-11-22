@@ -5,17 +5,25 @@ import com.bmacode17.androideatit.R;
 import com.bmacode17.androideatit.common.Common;
 import com.bmacode17.androideatit.databases.Database;
 import com.bmacode17.androideatit.interfaces.ItemClickListener;
+import com.bmacode17.androideatit.models.Banner;
 import com.bmacode17.androideatit.models.Category;
 import com.bmacode17.androideatit.models.Request;
 import com.bmacode17.androideatit.models.Token;
 import com.bmacode17.androideatit.viewHolders.MenuViewHolder;
+import com.daimajia.slider.library.Animations.DescriptionAnimation;
+import com.daimajia.slider.library.SliderLayout;
+import com.daimajia.slider.library.SliderTypes.BaseSliderView;
+import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
@@ -62,7 +70,7 @@ public class Home extends AppCompatActivity
 
     private static final String TAG = "Basel";
     FirebaseDatabase database;
-    DatabaseReference table_category, table_user;
+    DatabaseReference table_category, table_user, table_banner;
     TextView textView_fullName;
     RecyclerView recyclerView_menu;
     RecyclerView.LayoutManager layoutManager;
@@ -72,8 +80,11 @@ public class Home extends AppCompatActivity
     SwipeRefreshLayout swipeRefreshLayout_home;
     CounterFab fab;
 
-    // Press Ctrl + O
+    //Slider
+    HashMap<String,String> imageList;
+    SliderLayout sliderLayout;
 
+    // Press Ctrl + O
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -99,6 +110,9 @@ public class Home extends AppCompatActivity
         database = FirebaseDatabase.getInstance();
         table_category = database.getReference("category");
         table_user = database.getReference("user");
+
+        // Call this function after we init Firebase database
+        setupSlider();
 
         FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
                 .setQuery(table_category,Category.class)
@@ -206,6 +220,67 @@ public class Home extends AppCompatActivity
         updateToken(FirebaseInstanceId.getInstance().getToken());
     }
 
+    private void setupSlider() {
+
+        sliderLayout = (SliderLayout) findViewById(R.id.slider);
+        imageList = new HashMap<>();
+        database = FirebaseDatabase.getInstance();
+        table_banner = database.getReference("banner");
+
+        table_banner.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for(DataSnapshot postSnapshot:dataSnapshot.getChildren()){
+
+                    Banner banner = postSnapshot.getValue(Banner.class);
+                    // We'll concatenate name + id like PIZZA_01 and we'll use PIZZA to show the description and 01 to foodId to click
+                    imageList.put(banner.getName()+"_"+banner.getId(),banner.getImage());
+                }
+                for(String key:imageList.keySet()){
+
+                    String[] keySplit = key.split("_");
+                    String nameOfFood = keySplit[0];
+                    String idOfFood = keySplit[1];
+
+                    // Create slider
+                    final TextSliderView textSliderView = new TextSliderView(getBaseContext());
+                    textSliderView.description(nameOfFood)
+                            .image(imageList.get(key))
+                            .setScaleType(BaseSliderView.ScaleType.Fit)
+                            .setOnSliderClickListener(new BaseSliderView.OnSliderClickListener() {
+                                @Override
+                                public void onSliderClick(BaseSliderView slider) {
+
+                                    Intent intent = new Intent(Home.this,FoodDetails.class);
+                                    // Send foodId to FoodDetails
+                                    intent.putExtras(textSliderView.getBundle());
+                                    startActivity(intent);
+                                }
+                            });
+
+                    // Add extra bundle
+                    textSliderView.bundle(new Bundle());
+                    textSliderView.getBundle().putString("foodId",idOfFood);
+                    sliderLayout.addSlider(textSliderView);
+
+                    // Remove event after finish
+                    table_banner.removeEventListener(this);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        sliderLayout.setPresetTransformer(SliderLayout.Transformer.Background2Foreground);
+        sliderLayout.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+        sliderLayout.setCustomAnimation(new DescriptionAnimation());
+        sliderLayout.setDuration(4000);
+    }
+
     private void updateToken(String token) {
 
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -229,6 +304,7 @@ public class Home extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
+        sliderLayout.stopAutoCycle();
         if(adapter != null)
             adapter.stopListening();
     }
