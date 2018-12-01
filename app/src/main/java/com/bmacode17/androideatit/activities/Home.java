@@ -156,9 +156,11 @@ public class Home extends AppCompatActivity
             @Override
             public void onRefresh() {
 
-                if (Common.isConnectedToInternet(getBaseContext()))
+                if (Common.isConnectedToInternet(getBaseContext())){
                     loadMenu();
-                else {
+                    sliderLayout.removeAllSliders();
+                    setupSlider();
+                }else {
                     Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -171,9 +173,11 @@ public class Home extends AppCompatActivity
             @Override
             public void run() {
 
-                if (Common.isConnectedToInternet(getBaseContext()))
+                if (Common.isConnectedToInternet(getBaseContext())){
                     loadMenu();
-                else {
+                    sliderLayout.removeAllSliders();
+                    //setupSlider();
+                }else {
                     Toast.makeText(Home.this, "Check your Internet connection !", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -346,6 +350,8 @@ public class Home extends AppCompatActivity
 
         if (id == R.id.refresh){
             loadMenu();
+            sliderLayout.removeAllSliders();
+            setupSlider();
         }
         else if (id == R.id.settings){
             Toast.makeText(this, "Setting Operations", Toast.LENGTH_SHORT).show();

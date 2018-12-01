@@ -45,7 +45,7 @@
             app:shadowHeight="3dp"
             app:shadowEnabled="true"
             app:cornerRadius="4dp"
-            app:fButtonColor="@color/colorButton_SignUpSignIn"
+            app:fButtonColor="@color/colorPrimary"
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:layout_width="0dp"
