@@ -35,11 +35,13 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    implementation 'com.facebook.android:account-kit-sdk:4.29.0'
+    implementation 'com.facebook.android:facebook-share:4.29.0'
+
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'com.daimajia.slider:library:1.1.5@aar'
     implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
     implementation 'com.paypal.sdk:paypal-android-sdk:2.15.3'
-    implementation 'com.facebook.android:facebook-share:[4,5)'
     implementation 'com.github.d-max:spots-dialog:0.7@aar'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
@@ -52,7 +54,8 @@ dependencies {
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
 
     implementation 'com.google.android.gms:play-services-places:12.0.0'
-    implementation 'com.google.android.gms:play-services-location:12.0.0'
+    implementation 'com.google.android.gms:play-services:12.0.0'
+
     implementation 'com.google.firebase:firebase-storage:12.0.0'
     implementation 'com.google.firebase:firebase-auth:12.0.0'
     implementation 'com.google.firebase:firebase-core:12.0.0'

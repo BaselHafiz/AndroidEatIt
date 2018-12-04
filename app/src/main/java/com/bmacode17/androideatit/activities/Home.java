@@ -7,7 +7,6 @@ import com.bmacode17.androideatit.databases.Database;
 import com.bmacode17.androideatit.interfaces.ItemClickListener;
 import com.bmacode17.androideatit.models.Banner;
 import com.bmacode17.androideatit.models.Category;
-import com.bmacode17.androideatit.models.Request;
 import com.bmacode17.androideatit.models.Token;
 import com.bmacode17.androideatit.viewHolders.MenuViewHolder;
 import com.daimajia.slider.library.Animations.DescriptionAnimation;
@@ -32,14 +31,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -75,8 +70,8 @@ public class Home extends AppCompatActivity
     RecyclerView recyclerView_menu;
     RecyclerView.LayoutManager layoutManager;
     FirebaseRecyclerAdapter<Category, MenuViewHolder> adapter;
-    AlertDialog changePasswordDialog, setHomeAddressDialog;
-    EditText editText_oldPassword, editText_newPassword, editText_repeatNewPassword, editText_homeAddress;
+    AlertDialog updateNameDialog, setHomeAddressDialog;
+    EditText editText_userName , editText_homeAddress;
     SwipeRefreshLayout swipeRefreshLayout_home;
     CounterFab fab;
 
@@ -386,8 +381,8 @@ public class Home extends AppCompatActivity
             signInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signInIntent);
         }
-        else if (id == R.id.nav_changePassword) {
-            showChangePasswordDialog();
+        else if (id == R.id.nav_updateName) {
+            showUpdateNameDialog();
 
         }
         else if (id == R.id.nav_homeAddress) {
@@ -439,18 +434,16 @@ public class Home extends AppCompatActivity
         setHomeAddressDialog.show();
     }
 
-    private void showChangePasswordDialog() {
+    private void showUpdateNameDialog() {
 
         AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.change_password_cardview, null);
+        View dialogView = inflater.inflate(R.layout.update_name_cardview, null);
         myAlertDialog.setView(dialogView);
         myAlertDialog.setCancelable(true);
-        myAlertDialog.setTitle("Change Password");
+        myAlertDialog.setTitle("Update Name");
         myAlertDialog.setMessage("Please fill full information");
-        editText_oldPassword = (EditText) dialogView.findViewById(R.id.editText_oldPassword);
-        editText_newPassword = (EditText) dialogView.findViewById(R.id.editText_newPassword);
-        editText_repeatNewPassword = (EditText) dialogView.findViewById(R.id.editText_repeatNewPassword);
+        editText_userName = (EditText) dialogView.findViewById(R.id.editText_userName);
         myAlertDialog.setIcon(R.drawable.ic_security_black_24dp);
 
         myAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -462,7 +455,7 @@ public class Home extends AppCompatActivity
             }
         });
 
-        myAlertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        myAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -470,43 +463,21 @@ public class Home extends AppCompatActivity
                 final android.app.AlertDialog waitingDialog = new SpotsDialog(Home.this);
                 waitingDialog.show();
 
-                if (editText_oldPassword.getText().toString().equals(Common.currentUser.getPassword())) {
+                // Update name
+                Map<String , Object> updatedName = new HashMap<>();
+                updatedName.put("name" , editText_userName.getText().toString());
+                table_user.child(Common.currentUser.getPhone()).updateChildren(updatedName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
 
-                    if (editText_newPassword.getText().toString().equals(editText_repeatNewPassword.getText().toString())) {
-
-                        Map<String, Object> updatePassword = new HashMap<>();
-                        updatePassword.put("password", editText_newPassword.getText().toString());
-
-                        DatabaseReference table_user = FirebaseDatabase.getInstance().getReference("user");
-                        table_user.child(Common.currentUser.getPhone())
-                                .updateChildren(updatePassword)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        waitingDialog.dismiss();
-                                        Toast.makeText(Home.this, "Password is updated ", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        waitingDialog.dismiss();
-                                        Toast.makeText(Home.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    } else {
                         waitingDialog.dismiss();
-                        Toast.makeText(Home.this, "New password doesn't match !", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Home.this, "User name is updated", Toast.LENGTH_SHORT).show();
                     }
-
-                } else {
-                    waitingDialog.dismiss();
-                    Toast.makeText(Home.this, "Wrong old password !", Toast.LENGTH_SHORT).show();
-                }
+                });
             }
         });
 
-        changePasswordDialog = myAlertDialog.create();
-        changePasswordDialog.show();
+        updateNameDialog = myAlertDialog.create();
+        updateNameDialog.show();
     }
 }
