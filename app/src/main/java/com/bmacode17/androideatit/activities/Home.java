@@ -13,6 +13,7 @@ import com.daimajia.slider.library.Animations.DescriptionAnimation;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.facebook.accountkit.AccountKit;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -376,10 +377,11 @@ public class Home extends AppCompatActivity
         }
         else if (id == R.id.nav_logout) {
 
-            Paper.book().destroy();
-            Intent signInIntent = new Intent(Home.this, SignIn.class);
-            signInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(signInIntent);
+            AccountKit.logOut();
+
+            Intent mainActivityIntent = new Intent(Home.this, MainActivity.class);
+            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(mainActivityIntent);
         }
         else if (id == R.id.nav_updateName) {
             showUpdateNameDialog();

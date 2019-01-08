@@ -92,7 +92,7 @@ public class Cart extends AppCompatActivity {
     DatabaseReference table_request;
     RecyclerView recyclerView_listCart;
     RecyclerView.LayoutManager layoutManager;
-    RadioButton radioButton_shipToThisAddress , radioButton_homeAddress;
+    RadioButton radioButton_shipToThisAddress , radioButton_homeAddress, radioButton_cashOnDelivery,radioButton_paypal ;
     EditText editText_notes;
 //    EditText editText_address;
     FButton button_placeOrder;
@@ -201,6 +201,8 @@ public class Cart extends AppCompatActivity {
         editText_notes = (EditText) dialogView.findViewById(R.id.editText_notes);
         radioButton_shipToThisAddress = (RadioButton) dialogView.findViewById(R.id.radioButton_shipToThisAddress);
         radioButton_homeAddress = (RadioButton) dialogView.findViewById(R.id.radioButton_homeAddress);
+        radioButton_paypal = (RadioButton) dialogView.findViewById(R.id.radioButton_paypal);
+        radioButton_cashOnDelivery = (RadioButton) dialogView.findViewById(R.id.radioButton_cashOnDelivery);
 
         radioButton_shipToThisAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -301,46 +303,102 @@ public class Cart extends AppCompatActivity {
                 }
 
                 notes = editText_notes.getText().toString();
-
                 String orderNumber;
                 Request request;
 
-                if(shippingAddress != null){
+                if(!radioButton_cashOnDelivery.isChecked() && !radioButton_paypal.isChecked()){
 
-                    request = new Request(
-                            Common.currentUser.getPhone(),
-                            Common.currentUser.getName(),
-                            address,
-                            textView_totalPrice.getText().toString(),
-                            carts,
-                            notes,
-                            String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude));
+                    Toast.makeText(Cart.this, "No payment method is selected", Toast.LENGTH_SHORT).show();
+                    // Remove fragment
+                    getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+                    return;
                 }
-                else{
+                else if(radioButton_paypal.isChecked()) {
 
-                    request = new Request(
-                            Common.currentUser.getPhone(),
-                            Common.currentUser.getName(),
-                            address,
-                            textView_totalPrice.getText().toString(),
-                            carts,
-                            notes,
-                            "No Latlng");
+                    if(shippingAddress != null){
+
+                        request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                textView_totalPrice.getText().toString(),
+                                carts,
+                                notes,
+                                String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude),
+                                "PayPal",
+                                "Unpaid");
+                    }
+                    else{
+
+                        request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                textView_totalPrice.getText().toString(),
+                                carts,
+                                notes,
+                                "No Latlng",
+                                "PayPal",
+                                "Unpaid");
+                    }
+
+                    // Remove fragment
+                    getFragmentManager().beginTransaction()
+                            .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+
+                    // Submit to firebase
+                    // currentTimeMillis is considered as a key
+                    orderNumber = String.valueOf(System.currentTimeMillis());
+                    table_request.child(orderNumber).setValue(request);
+                    dialog.dismiss();
+
+                    // Delete carts
+                    new Database(getBaseContext()).cleanCarts();
+                    sendOrderNotification(orderNumber);
                 }
+                else if(radioButton_cashOnDelivery.isChecked()){
 
-                // Remove fragment
-                getFragmentManager().beginTransaction()
-                        .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+                    if(shippingAddress != null){
 
-                // Submit to firebase
-                // currentTimeMillis is considered as a key
-                orderNumber = String.valueOf(System.currentTimeMillis());
-                table_request.child(orderNumber).setValue(request);
-                dialog.dismiss();
+                        request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                textView_totalPrice.getText().toString(),
+                                carts,
+                                notes,
+                                String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude),
+                                "Cash On Delivery",
+                                "Unpaid");
+                    }
+                    else{
 
-                // Delete carts
-                new Database(getBaseContext()).cleanCarts();
-                sendOrderNotification(orderNumber);
+                        request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                textView_totalPrice.getText().toString(),
+                                carts,
+                                notes,
+                                "No Latlng",
+                                "Cash On Delivery",
+                                "Unpaid");
+                    }
+
+                    // Remove fragment
+                    getFragmentManager().beginTransaction()
+                            .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+
+                    // Submit to firebase
+                    // currentTimeMillis is considered as a key
+                    orderNumber = String.valueOf(System.currentTimeMillis());
+                    table_request.child(orderNumber).setValue(request);
+                    dialog.dismiss();
+
+                    // Delete carts
+                    new Database(getBaseContext()).cleanCarts();
+                    sendOrderNotification(orderNumber);
+                }
             }
         });
 
