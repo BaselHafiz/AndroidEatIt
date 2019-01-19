@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                                         newUser.setPhone(userPhone);
                                         newUser.setName("DEFAULT USER");
                                         newUser.setIsStaff("false");
+                                        newUser.setBalance(0.0);
 
                                         table_user.child(userPhone).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override

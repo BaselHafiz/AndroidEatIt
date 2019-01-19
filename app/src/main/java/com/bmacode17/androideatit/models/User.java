@@ -12,6 +12,7 @@ public class User {
     private String isStaff;
     private String secureCode;
     private String homeAddress;
+    private double balance;
 
     public User() {
     }
@@ -21,6 +22,14 @@ public class User {
         this.password = password;
         this.isStaff = "false";
         this.secureCode = secureCode;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 
     public String getHomeAddress() {

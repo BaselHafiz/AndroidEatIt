@@ -4,11 +4,17 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.ParseException;
 
 import com.bmacode17.androideatit.models.User;
 import com.bmacode17.androideatit.remotes.APIService;
 import com.bmacode17.androideatit.remotes.GoogleAPIService;
 import com.bmacode17.androideatit.remotes.RetrofitClient;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Created by User on 29-Jun-18.
@@ -59,5 +65,15 @@ public class Common {
             }
         }
         return false;
+    }
+
+    // This function converts currency to number based on Locale
+    public static BigDecimal formatCurrency(String amount , Locale locale) throws java.text.ParseException {
+
+        NumberFormat format = NumberFormat.getCurrencyInstance(locale);
+        if(format instanceof DecimalFormat)
+            ((DecimalFormat) format).setParseBigDecimal(true);
+
+        return (BigDecimal) format.parse(amount.replace("[^\\d.,]",""));
     }
 }

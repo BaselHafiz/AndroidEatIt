@@ -42,6 +42,7 @@ import com.bmacode17.androideatit.models.Order;
 import com.bmacode17.androideatit.models.Request;
 import com.bmacode17.androideatit.models.Sender;
 import com.bmacode17.androideatit.models.Token;
+import com.bmacode17.androideatit.models.User;
 import com.bmacode17.androideatit.remotes.APIService;
 import com.bmacode17.androideatit.remotes.GoogleAPIService;
 import com.bmacode17.androideatit.viewHolders.FoodViewHolder;
@@ -73,9 +74,12 @@ import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import info.hoang8f.widget.FButton;
 import retrofit2.Call;
@@ -89,10 +93,10 @@ public class Cart extends AppCompatActivity {
     private static final String TAG = "Basel";
     public TextView textView_totalPrice;
     FirebaseDatabase database;
-    DatabaseReference table_request;
+    DatabaseReference table_request, table_user;
     RecyclerView recyclerView_listCart;
     RecyclerView.LayoutManager layoutManager;
-    RadioButton radioButton_shipToThisAddress , radioButton_homeAddress, radioButton_cashOnDelivery,radioButton_paypal ;
+    RadioButton radioButton_shipToThisAddress , radioButton_homeAddress, radioButton_cashOnDelivery,radioButton_paypal, radioButton_balance ;
     EditText editText_notes;
 //    EditText editText_address;
     FButton button_placeOrder;
@@ -150,6 +154,7 @@ public class Cart extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         table_request = database.getReference("request");
+        table_user = database.getReference("user");
 
         recyclerView_listCart = (RecyclerView) findViewById(R.id.recyclerView_listCart);
         recyclerView_listCart.setHasFixedSize(true);
@@ -203,6 +208,7 @@ public class Cart extends AppCompatActivity {
         radioButton_homeAddress = (RadioButton) dialogView.findViewById(R.id.radioButton_homeAddress);
         radioButton_paypal = (RadioButton) dialogView.findViewById(R.id.radioButton_paypal);
         radioButton_cashOnDelivery = (RadioButton) dialogView.findViewById(R.id.radioButton_cashOnDelivery);
+        radioButton_balance = (RadioButton) dialogView.findViewById(R.id.radioButton_balance);
 
         radioButton_shipToThisAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -303,10 +309,10 @@ public class Cart extends AppCompatActivity {
                 }
 
                 notes = editText_notes.getText().toString();
-                String orderNumber;
+                final String orderNumber;
                 Request request;
 
-                if(!radioButton_cashOnDelivery.isChecked() && !radioButton_paypal.isChecked()){
+                if(!radioButton_cashOnDelivery.isChecked() && !radioButton_paypal.isChecked() && !radioButton_balance.isChecked()){
 
                     Toast.makeText(Cart.this, "No payment method is selected", Toast.LENGTH_SHORT).show();
                     // Remove fragment
@@ -398,6 +404,91 @@ public class Cart extends AppCompatActivity {
                     // Delete carts
                     new Database(getBaseContext()).cleanCarts();
                     sendOrderNotification(orderNumber);
+                }
+                else if(radioButton_balance.isChecked()){
+
+                    double amount = 0;
+                    try {
+                        amount = Common.formatCurrency(textView_totalPrice.getText().toString(),Locale.US).doubleValue();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    if(Common.currentUser.getBalance() >= amount){
+
+                        if(shippingAddress != null){
+
+                            request = new Request(
+                                    Common.currentUser.getPhone(),
+                                    Common.currentUser.getName(),
+                                    address,
+                                    textView_totalPrice.getText().toString(),
+                                    carts,
+                                    notes,
+                                    String.format("%s,%s",shippingAddress.getLatLng().latitude,shippingAddress.getLatLng().longitude),
+                                    "EatIt Balance",
+                                    "Paid");
+                        }
+                        else{
+
+                            request = new Request(
+                                    Common.currentUser.getPhone(),
+                                    Common.currentUser.getName(),
+                                    address,
+                                    textView_totalPrice.getText().toString(),
+                                    carts,
+                                    notes,
+                                    "No Latlng",
+                                    "EatIt Balance",
+                                    "Paid");
+                        }
+
+                        // Remove fragment
+                        getFragmentManager().beginTransaction()
+                                .remove(getFragmentManager().findFragmentById(R.id.fragment_placeAutoComplete)).commit();
+
+                        // Submit to firebase
+                        // currentTimeMillis is considered as a key
+                        orderNumber = String.valueOf(System.currentTimeMillis());
+                        table_request.child(orderNumber).setValue(request);
+                        dialog.dismiss();
+
+                        // Delete carts
+                        new Database(getBaseContext()).cleanCarts();
+
+                        // Update balance
+                        double balance = Common.currentUser.getBalance() - amount;
+                        Map<String,Object> updated_balance = new HashMap<>();
+                        updated_balance.put("balance",balance);
+                        table_user.child(Common.currentUser.getPhone())
+                                .updateChildren(updated_balance)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                        if(task.isSuccessful()){
+
+                                            // Refresh user
+                                            table_user.child(Common.currentUser.getPhone())
+                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                                            Common.currentUser = dataSnapshot.getValue(User.class);
+                                                            sendOrderNotification(orderNumber);
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                });
+                    }else{
+                        Toast.makeText(Cart.this, "Your balance isn't enough, please choose another payment method", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
